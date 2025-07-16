@@ -252,3 +252,31 @@ button {
   background: #888;
   cursor: not-allowed;
 }
+form select {
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #757474;
+  font-size: 1rem;
+}
+
+.repeat-info {
+  font-size: 0.85rem;
+  margin-top: 6px;
+  font-style: italic;
+  color: #ccc;
+}
+
+@media (max-width: 600px) {
+  .event-card.large, .event-card.medium, .event-card.small {
+    font-size: 0.9rem;
+    padding: 15px;
+  }
+
+  .event-title {
+    font-size: 1.2rem;
+  }
+
+  .countdown span {
+    font-size: 1.2rem;
+  }
+}

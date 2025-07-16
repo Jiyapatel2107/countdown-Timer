@@ -40,6 +40,13 @@
       <input type="text" id="title" placeholder="Event Title" required />
       <input type="date" id="date" required /> 
       <input type="time" id="time" required />
+      <select id="repeat">
+        <option value="none">No Repeat</option>
+        <option value="daily">Daily</option>
+        <option value="weekly">Weekly</option>
+        <option value="monthly">Monthly</option>
+        <option value="yearly">Yearly</option>
+      </select>
       <button class="add" type="submit">Add Event</button>
     </form>
 
@@ -47,7 +54,6 @@
   </div>
 
   <audio id="alarm-sound" src="alarm.mp3" preload="auto"></audio>
-  
   <script src="script.js"></script>
 </body>
 </html>
