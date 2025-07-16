@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Multi Event Countdown</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="settings-container">
+    <div class="settings-icon">⚙️</div>
+    <div class="settings-menu hidden">
+      <label>Layout:</label>
+      <select id="layout-select">
+        <option value="list">List</option>
+        <option value="grid">Grid</option>
+        <option value="carousel">Carousel</option>
+      </select>
+
+      <label>Event Size:</label>
+      <select id="size-select">
+        <option value="small">Small</option>
+        <option value="medium" selected>Medium</option>
+        <option value="large">Large</option>
+      </select>
+
+      <hr />
+      <button id="enable-notifications" class="notify-btn">🔔 Enable Notifications</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <div id="empty-state" class="empty-state">
+      <div class="icon"><img src="time img.png" height="100px" width="100px"></div><br><br>
+      <p>Create your first Event</p>
+      <div class="arrow">⬇</div>
+    </div>
+
+    <form id="event-form">
+      <input type="text" id="title" placeholder="Event Title" required />
+      <input type="date" id="date" required /> 
+      <input type="time" id="time" required />
+      <button class="add" type="submit">Add Event</button>
+    </form>
+
+    <div id="events-list" class="events-list"></div>
+  </div>
+
+  <audio id="alarm-sound" src="alarm.mp3" preload="auto"></audio>
+  
+  <script src="script.js"></script>
+</body>
+</html>

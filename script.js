@@ -1,0 +1,252 @@
+// === script.js ===
+const eventForm = document.getElementById('event-form');
+const eventsList = document.getElementById('events-list');
+const settingsIcon = document.querySelector('.settings-icon');
+const settingsMenu = document.querySelector('.settings-menu');
+const layoutSelect = document.getElementById('layout-select');
+const sizeSelect = document.getElementById('size-select');
+const notifyBtn = document.getElementById('enable-notifications');
+
+let events = JSON.parse(localStorage.getItem('countdown-events')) || [];
+let alarmPlayed = {}; // Prevents repeated alarm on refresh
+
+function saveEvents() {
+  localStorage.setItem('countdown-events', JSON.stringify(events));
+}
+
+function saveSettings() {
+  localStorage.setItem('layout-setting', layoutSelect.value);
+  localStorage.setItem('size-setting', sizeSelect.value);
+}
+
+function loadSettings() {
+  const savedLayout = localStorage.getItem('layout-setting');
+  const savedSize = localStorage.getItem('size-setting');
+  if (savedLayout) layoutSelect.value = savedLayout;
+  if (savedSize) sizeSelect.value = savedSize;
+  applySettings();
+}
+
+window.onload = () => {
+  loadSettings();
+  renderEvents();
+
+  const enabledConfirmationShown = localStorage.getItem('notification-enabled-confirmation-shown');
+  if (notifyBtn) {
+    if (Notification.permission === "granted" && enabledConfirmationShown === "true") {
+      notifyBtn.textContent = "✅ Notifications Enabled";
+      notifyBtn.disabled = true;
+    } else if (Notification.permission === "denied") {
+      notifyBtn.textContent = "❌ Enable Notifications (Denied)";
+      notifyBtn.disabled = false;
+    } else {
+      notifyBtn.textContent = "🔔 Enable Notifications";
+      notifyBtn.disabled = false;
+    }
+  }
+
+  setInterval(() => {
+    events.forEach((event, index) => {
+      updateCountdown(index, new Date(event.date));
+    });
+  }, 1000);
+};
+
+// Add Event
+eventForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const title = document.getElementById('title').value;
+  const date = document.getElementById('date').value;
+  const timeValue = document.getElementById('time').value;
+  const repeat = document.getElementById('repeat').value;
+
+  if (!date || !timeValue) {
+    alert("Please provide both date and time.");
+    return;
+  }
+
+  const dateTime = new Date(`${date}T${timeValue}`);
+  if (isNaN(dateTime.getTime()) || dateTime < new Date()) {
+    alert("Please pick a valid future date and time!");
+    return;
+  }
+
+  events.push({ title, date: dateTime, repeat });
+  events.sort((a, b) => new Date(a.date) - new Date(b.date));
+  saveEvents();
+  renderEvents();
+  eventForm.reset();
+});
+
+function renderEvents() {
+  eventsList.innerHTML = '';
+  const emptyState = document.getElementById('empty-state');
+  emptyState.style.display = events.length === 0 ? 'block' : 'none';
+
+  events.forEach((event, index) => {
+    const card = document.createElement('div');
+    card.className = `event-card ${sizeSelect ? sizeSelect.value : 'medium'}`;
+    card.innerHTML = `
+      <div class="event-title">${event.title}</div>
+      <div class="event-date">${new Date(event.date).toLocaleString()}</div>
+      <div class="repeat-info">🔁 ${event.repeat.charAt(0).toUpperCase() + event.repeat.slice(1)}</div>
+      <div class="countdown" id="countdown-${index}"></div>
+      <div class="actions">
+        <button onclick="editEvent(${index})">✏️</button>
+        <button onclick="deleteEvent(${index})">🗑️</button>
+      </div>
+    `;
+    eventsList.appendChild(card);
+    updateCountdown(index, new Date(event.date));
+  });
+}
+
+function editEvent(index) {
+  const event = events[index];
+  const newTitle = prompt("Update event title:", event.title);
+  const currentDate = new Date(event.date);
+  const newDate = prompt("Update event date (YYYY-MM-DD):", currentDate.toISOString().split('T')[0]);
+  const newTime = prompt("Update event time (HH:MM):", currentDate.toTimeString().substring(0, 5));
+  const newRepeat = prompt("Repeat? (none/daily/weekly/monthly/yearly):", event.repeat);
+
+  if (!newTitle || !newDate || !newTime || isNaN(new Date(`${newDate}T${newTime}`))) {
+    alert("Invalid inputs.");
+    return;
+  }
+
+  events[index] = { title: newTitle, date: new Date(`${newDate}T${newTime}`), repeat: newRepeat };
+  saveEvents();
+  renderEvents();
+}
+
+function deleteEvent(index) {
+  if (confirm(`Delete "${events[index].title}"?`)) {
+    events.splice(index, 1);
+    saveEvents();
+    renderEvents();
+  }
+}
+
+function updateCountdown(index, date) {
+  const now = new Date();
+  const nowTime = now.getTime();
+  let event = events[index];
+  let eventTime = new Date(event.date).getTime();
+  const countdownEl = document.getElementById(`countdown-${index}`);
+  if (!countdownEl) return;
+
+  const timeLeft = eventTime - nowTime;
+  const todayStr = now.toDateString();
+  const eventDateStr = new Date(event.date).toDateString();
+
+  // Reminder notification (1 day before at 9AM)
+  const reminderTime = new Date(event.date);
+  reminderTime.setDate(reminderTime.getDate() - 1);
+  reminderTime.setHours(9, 0, 0, 0);
+
+  const notifiedKey = `notified-${index}`;
+  if (
+    Notification.permission === "granted" &&
+    nowTime >= reminderTime.getTime() &&
+    nowTime < eventTime &&
+    todayStr === reminderTime.toDateString() &&
+    !localStorage.getItem(notifiedKey)
+  ) {
+    new Notification("⏰ Reminder", { body: `${event.title} is tomorrow!` });
+    localStorage.setItem(notifiedKey, "true");
+  }
+
+  if (todayStr === eventDateStr) {
+    countdownEl.innerHTML = "🎉 Event is Today!";
+    if (timeLeft <= 0 && !alarmPlayed[index]) {
+      document.getElementById('alarm-sound').play();
+      alarmPlayed[index] = true;
+      let nextDate = new Date(event.date);
+      switch (event.repeat) {
+        case "daily":
+          nextDate.setDate(nextDate.getDate() + 1);
+          break;
+        case "weekly":
+          nextDate.setDate(nextDate.getDate() + 7);
+          break;
+        case "monthly":
+          nextDate.setMonth(nextDate.getMonth() + 1);
+          break;
+        case "yearly":
+          nextDate.setFullYear(nextDate.getFullYear() + 1);
+          break;
+      }
+      if (event.repeat !== "none") {
+        event.date = nextDate;
+        alarmPlayed[index] = false;
+        saveEvents();
+        renderEvents();
+      }
+    }
+    return;
+  }
+
+  if (timeLeft <= 0) {
+    countdownEl.innerHTML = "⏰ Event Passed";
+    return;
+  }
+
+  const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+  countdownEl.innerHTML = `
+    <div><span>${days}</span><small>Days</small></div>
+    <div><span>${hours}</span><small>Hours</small></div>
+    <div><span>${minutes}</span><small>Minutes</small></div>
+    <div><span>${seconds}</span><small>Seconds</small></div>
+  `;
+}
+
+if (notifyBtn) {
+  notifyBtn.addEventListener('click', () => {
+    if (!("Notification" in window)) {
+      alert("Browser does not support desktop notifications.");
+      return;
+    }
+    Notification.requestPermission().then(permission => {
+      if (permission === "granted") {
+        new Notification("🔔 Notifications enabled!", {
+          body: "You'll receive reminders for your events."
+        });
+        localStorage.setItem('notification-enabled-confirmation-shown', "true");
+        notifyBtn.textContent = "✅ Notifications Enabled";
+        notifyBtn.disabled = true;
+      } else {
+        alert("You denied notifications. Enable them in browser settings.");
+      }
+    });
+  });
+}
+
+if (settingsIcon) {
+  settingsIcon.addEventListener('click', () => {
+    settingsMenu.classList.toggle('hidden');
+  });
+}
+
+layoutSelect.addEventListener('change', () => {
+  applySettings();
+  saveSettings();
+});
+
+sizeSelect.addEventListener('change', () => {
+  applySettings();
+  saveSettings();
+});
+
+function applySettings() {
+  const layout = layoutSelect.value;
+  const size = sizeSelect.value;
+  eventsList.className = 'events-list ' + layout;
+  document.querySelectorAll('.event-card').forEach(card => {
+    card.classList.remove('small', 'medium', 'large');
+    card.classList.add(size);
+  });
+}

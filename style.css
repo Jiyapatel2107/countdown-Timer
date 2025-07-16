@@ -1,0 +1,254 @@
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: #d6d7d8c4;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 20px;
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+form {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 20px;
+  margin-top: 20px;
+}
+
+input,
+button {
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #757474;
+  font-size: 1rem;
+}
+
+button {
+  background: #d5d6d6;
+  color: white;
+  cursor: pointer;
+  border: none;
+}
+
+.add {
+  background: #555756;
+  color: white;
+  cursor: pointer;
+  border: none;
+}
+
+.empty-state {
+  text-align: center;
+  color: #333;
+  margin-top: 100px;
+  display: none;
+  animation: fadeIn 0.5s ease;
+}
+
+.empty-state .icon {
+  margin-bottom: 20px;
+  animation: rotate 20s linear infinite;
+}
+
+.empty-state .arrow {
+  font-size: 2rem;
+  margin-top: 10px;
+}
+
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.events-list.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+.events-list.carousel {
+  display: flex;
+  overflow-x: auto;
+  gap: 20px;
+}
+
+.events-list.list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.event-card.small {
+  background: url('back3.jpg') no-repeat center/cover;
+  background-size: 100% 100%;
+  color: white;
+  font-size: 0.8rem;
+  padding: 10px;
+  border-radius: 15px;
+  position: relative;
+}
+
+.event-card.medium {
+  background: url('back3.jpg') no-repeat center/cover;
+  background-size: 100% 100%;
+  color: white;
+  font-size: 1rem;
+  padding: 20px;
+  border-radius: 15px;
+  position: relative;
+}
+
+.event-card.large {
+  background: url('back3.jpg') no-repeat center/cover;
+  background-size: 100% 100%;
+  color: white;
+  font-size: 1.2rem;
+  padding: 30px;
+  border-radius: 15px;
+  position: relative;
+}
+
+.event-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 15px;
+}
+
+.event-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.event-title {
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+
+.event-date {
+  margin-top: 5px;
+  font-size: 0.95rem;
+}
+
+.countdown {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.countdown div {
+  text-align: center;
+}
+
+.countdown span {
+  font-size: 1.5rem;
+  display: block;
+}
+
+.countdown small {
+  font-size: 0.75rem;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.actions button {
+  padding: 5px 10px;
+  font-size: 0.85rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.actions button:hover {
+  background-color: #f0f0f0;
+}
+
+.settings-container {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  z-index: 100;
+}
+
+.settings-icon {
+  cursor: pointer;
+  font-size: 1.6rem;
+  font-weight: bold;
+}
+
+.settings-menu {
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 10px;
+  margin-top: 8px;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+  width: 180px;
+}
+
+.settings-menu.hidden {
+  display: none;
+}
+
+.settings-menu label {
+  font-weight: bold;
+  display: block;
+  margin-top: 8px;
+}
+
+.settings-menu select {
+  width: 100%;
+  padding: 6px;
+  margin-top: 4px;
+  border-radius: 5px;
+}
+
+/* Notification button inside settings */
+.notify-btn {
+  background: #383a3a;
+  color: white;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  margin-top: 12px;
+  width: 100%;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.notify-btn:hover {
+  background: #808381;
+}
+
+.notify-btn:disabled {
+  background: #888;
+  cursor: not-allowed;
+}
