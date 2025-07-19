@@ -1,4 +1,4 @@
-// === script.js ===
+// DOM references
 const eventForm = document.getElementById('event-form');
 const eventsList = document.getElementById('events-list');
 const settingsIcon = document.querySelector('.settings-icon');
@@ -7,18 +7,22 @@ const layoutSelect = document.getElementById('layout-select');
 const sizeSelect = document.getElementById('size-select');
 const notifyBtn = document.getElementById('enable-notifications');
 
+// Retrieve events from localStorage
 let events = JSON.parse(localStorage.getItem('countdown-events')) || [];
-let alarmPlayed = {}; // Prevents repeated alarm on refresh
+let alarmPlayed = {}; // Prevent duplicate alarms
 
+// Save events to localStorage
 function saveEvents() {
   localStorage.setItem('countdown-events', JSON.stringify(events));
 }
 
+// Save layout/size settings
 function saveSettings() {
   localStorage.setItem('layout-setting', layoutSelect.value);
   localStorage.setItem('size-setting', sizeSelect.value);
 }
 
+// Load saved settings and apply them
 function loadSettings() {
   const savedLayout = localStorage.getItem('layout-setting');
   const savedSize = localStorage.getItem('size-setting');
@@ -27,10 +31,12 @@ function loadSettings() {
   applySettings();
 }
 
+// On page load
 window.onload = () => {
   loadSettings();
   renderEvents();
 
+  // Check notification status and update button
   const enabledConfirmationShown = localStorage.getItem('notification-enabled-confirmation-shown');
   if (notifyBtn) {
     if (Notification.permission === "granted" && enabledConfirmationShown === "true") {
@@ -39,12 +45,10 @@ window.onload = () => {
     } else if (Notification.permission === "denied") {
       notifyBtn.textContent = "❌ Enable Notifications (Denied)";
       notifyBtn.disabled = false;
-    } else {
-      notifyBtn.textContent = "🔔 Enable Notifications";
-      notifyBtn.disabled = false;
     }
   }
 
+  // Update all countdowns every second
   setInterval(() => {
     events.forEach((event, index) => {
       updateCountdown(index, new Date(event.date));
@@ -52,7 +56,7 @@ window.onload = () => {
   }, 1000);
 };
 
-// Add Event
+// Handle event form submission
 eventForm.addEventListener('submit', (e) => {
   e.preventDefault();
   const title = document.getElementById('title').value;
@@ -60,16 +64,10 @@ eventForm.addEventListener('submit', (e) => {
   const timeValue = document.getElementById('time').value;
   const repeat = document.getElementById('repeat').value;
 
-  if (!date || !timeValue) {
-    alert("Please provide both date and time.");
-    return;
-  }
+  if (!date || !timeValue) return alert("Please provide both date and time.");
 
   const dateTime = new Date(`${date}T${timeValue}`);
-  if (isNaN(dateTime.getTime()) || dateTime < new Date()) {
-    alert("Please pick a valid future date and time!");
-    return;
-  }
+  if (isNaN(dateTime.getTime()) || dateTime < new Date()) return alert("Please pick a valid future date and time!");
 
   events.push({ title, date: dateTime, repeat });
   events.sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -78,6 +76,7 @@ eventForm.addEventListener('submit', (e) => {
   eventForm.reset();
 });
 
+// Render all events in the UI
 function renderEvents() {
   eventsList.innerHTML = '';
   const emptyState = document.getElementById('empty-state');
@@ -101,24 +100,23 @@ function renderEvents() {
   });
 }
 
+// Edit an event
 function editEvent(index) {
   const event = events[index];
-  const newTitle = prompt("Update event title:", event.title);
   const currentDate = new Date(event.date);
+  const newTitle = prompt("Update event title:", event.title);
   const newDate = prompt("Update event date (YYYY-MM-DD):", currentDate.toISOString().split('T')[0]);
   const newTime = prompt("Update event time (HH:MM):", currentDate.toTimeString().substring(0, 5));
   const newRepeat = prompt("Repeat? (none/daily/weekly/monthly/yearly):", event.repeat);
 
-  if (!newTitle || !newDate || !newTime || isNaN(new Date(`${newDate}T${newTime}`))) {
-    alert("Invalid inputs.");
-    return;
-  }
+  if (!newTitle || !newDate || !newTime || isNaN(new Date(`${newDate}T${newTime}`))) return alert("Invalid inputs.");
 
   events[index] = { title: newTitle, date: new Date(`${newDate}T${newTime}`), repeat: newRepeat };
   saveEvents();
   renderEvents();
 }
 
+// Delete an event
 function deleteEvent(index) {
   if (confirm(`Delete "${events[index].title}"?`)) {
     events.splice(index, 1);
@@ -127,6 +125,7 @@ function deleteEvent(index) {
   }
 }
 
+// Update countdown and handle alarms/repeats
 function updateCountdown(index, date) {
   const now = new Date();
   const nowTime = now.getTime();
@@ -136,45 +135,37 @@ function updateCountdown(index, date) {
   if (!countdownEl) return;
 
   const timeLeft = eventTime - nowTime;
-  const todayStr = now.toDateString();
-  const eventDateStr = new Date(event.date).toDateString();
 
-  // Reminder notification (1 day before at 9AM)
+  // Send notification one day before
   const reminderTime = new Date(event.date);
   reminderTime.setDate(reminderTime.getDate() - 1);
   reminderTime.setHours(9, 0, 0, 0);
-
   const notifiedKey = `notified-${index}`;
+
   if (
     Notification.permission === "granted" &&
     nowTime >= reminderTime.getTime() &&
     nowTime < eventTime &&
-    todayStr === reminderTime.toDateString() &&
+    now.toDateString() === reminderTime.toDateString() &&
     !localStorage.getItem(notifiedKey)
   ) {
     new Notification("⏰ Reminder", { body: `${event.title} is tomorrow!` });
     localStorage.setItem(notifiedKey, "true");
   }
 
-  if (todayStr === eventDateStr) {
+  if (now.toDateString() === new Date(event.date).toDateString()) {
     countdownEl.innerHTML = "🎉 Event is Today!";
     if (timeLeft <= 0 && !alarmPlayed[index]) {
       document.getElementById('alarm-sound').play();
       alarmPlayed[index] = true;
+
+      // Handle repeatable events
       let nextDate = new Date(event.date);
       switch (event.repeat) {
-        case "daily":
-          nextDate.setDate(nextDate.getDate() + 1);
-          break;
-        case "weekly":
-          nextDate.setDate(nextDate.getDate() + 7);
-          break;
-        case "monthly":
-          nextDate.setMonth(nextDate.getMonth() + 1);
-          break;
-        case "yearly":
-          nextDate.setFullYear(nextDate.getFullYear() + 1);
-          break;
+        case "daily": nextDate.setDate(nextDate.getDate() + 1); break;
+        case "weekly": nextDate.setDate(nextDate.getDate() + 7); break;
+        case "monthly": nextDate.setMonth(nextDate.getMonth() + 1); break;
+        case "yearly": nextDate.setFullYear(nextDate.getFullYear() + 1); break;
       }
       if (event.repeat !== "none") {
         event.date = nextDate;
@@ -191,6 +182,7 @@ function updateCountdown(index, date) {
     return;
   }
 
+  // Convert time left to readable format
   const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
   const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
   const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
@@ -204,12 +196,10 @@ function updateCountdown(index, date) {
   `;
 }
 
+// Notification button handler
 if (notifyBtn) {
   notifyBtn.addEventListener('click', () => {
-    if (!("Notification" in window)) {
-      alert("Browser does not support desktop notifications.");
-      return;
-    }
+    if (!("Notification" in window)) return alert("Browser does not support desktop notifications.");
     Notification.requestPermission().then(permission => {
       if (permission === "granted") {
         new Notification("🔔 Notifications enabled!", {
@@ -225,22 +215,24 @@ if (notifyBtn) {
   });
 }
 
+// Toggle settings menu
 if (settingsIcon) {
   settingsIcon.addEventListener('click', () => {
     settingsMenu.classList.toggle('hidden');
   });
 }
 
+// Update layout/size settings on change
 layoutSelect.addEventListener('change', () => {
   applySettings();
   saveSettings();
 });
-
 sizeSelect.addEventListener('change', () => {
   applySettings();
   saveSettings();
 });
 
+// Apply layout and size settings
 function applySettings() {
   const layout = layoutSelect.value;
   const size = sizeSelect.value;

@@ -1,10 +1,12 @@
+/* === GLOBAL STYLES === */
 body {
   font-family: 'Segoe UI', sans-serif;
-  background: #d6d7d8c4;
+  background: #d6d7d8c4; /* light grey background */
   margin: 0;
   padding: 0;
 }
 
+/* === MAIN CONTAINER === */
 .container {
   max-width: 800px;
   margin: 40px auto;
@@ -14,13 +16,13 @@ body {
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
 
+/* === FORM STYLES === */
 form {
   display: flex;
   gap: 15px;
   flex-wrap: wrap;
   justify-content: center;
-  margin-bottom: 20px;
-  margin-top: 20px;
+  margin: 20px 0;
 }
 
 input,
@@ -38,13 +40,13 @@ button {
   border: none;
 }
 
+/* Add Event button */
 .add {
   background: #555756;
   color: white;
-  cursor: pointer;
-  border: none;
 }
 
+/* === EMPTY STATE DISPLAY === */
 .empty-state {
   text-align: center;
   color: #333;
@@ -63,26 +65,18 @@ button {
   margin-top: 10px;
 }
 
+/* Animations */
 @keyframes rotate {
-  0% {
-    transform: rotate(0deg);
-  }
-
-  100% {
-    transform: rotate(360deg);
-  }
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
+/* === EVENTS LIST LAYOUT OPTIONS === */
 .events-list.grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -100,36 +94,33 @@ button {
   gap: 20px;
 }
 
-.event-card.small {
-  background: url('back3.jpg') no-repeat center/cover;
-  background-size: 100% 100%;
-  color: white;
-  font-size: 0.8rem;
-  padding: 10px;
-  border-radius: 15px;
-  position: relative;
-}
-
-.event-card.medium {
-  background: url('back3.jpg') no-repeat center/cover;
-  background-size: 100% 100%;
-  color: white;
-  font-size: 1rem;
-  padding: 20px;
-  border-radius: 15px;
-  position: relative;
-}
-
+/* === EVENT CARD SIZES === */
+.event-card.small,
+.event-card.medium,
 .event-card.large {
   background: url('back3.jpg') no-repeat center/cover;
   background-size: 100% 100%;
   color: white;
-  font-size: 1.2rem;
-  padding: 30px;
   border-radius: 15px;
   position: relative;
 }
 
+.event-card.small {
+  font-size: 0.8rem;
+  padding: 10px;
+}
+
+.event-card.medium {
+  font-size: 1rem;
+  padding: 20px;
+}
+
+.event-card.large {
+  font-size: 1.2rem;
+  padding: 30px;
+}
+
+/* Overlay on background image */
 .event-card::after {
   content: '';
   position: absolute;
@@ -138,11 +129,13 @@ button {
   border-radius: 15px;
 }
 
+/* Ensure content stays above overlay */
 .event-card > * {
   position: relative;
   z-index: 1;
 }
 
+/* === EVENT DETAILS === */
 .event-title {
   font-size: 1.4rem;
   font-weight: bold;
@@ -153,6 +146,14 @@ button {
   font-size: 0.95rem;
 }
 
+.repeat-info {
+  font-size: 0.85rem;
+  margin-top: 6px;
+  font-style: italic;
+  color: #ccc;
+}
+
+/* === COUNTDOWN DISPLAY === */
 .countdown {
   display: flex;
   justify-content: space-between;
@@ -172,6 +173,7 @@ button {
   font-size: 0.75rem;
 }
 
+/* === BUTTONS FOR EDIT/DELETE === */
 .actions {
   display: flex;
   gap: 10px;
@@ -190,6 +192,7 @@ button {
   background-color: #f0f0f0;
 }
 
+/* === SETTINGS PANEL === */
 .settings-container {
   position: absolute;
   top: 20px;
@@ -213,6 +216,7 @@ button {
   width: 180px;
 }
 
+/* Hidden menu toggle */
 .settings-menu.hidden {
   display: none;
 }
@@ -230,7 +234,7 @@ button {
   border-radius: 5px;
 }
 
-/* Notification button inside settings */
+/* === NOTIFICATION BUTTON === */
 .notify-btn {
   background: #383a3a;
   color: white;
@@ -252,6 +256,8 @@ button {
   background: #888;
   cursor: not-allowed;
 }
+
+/* === FORM DROPDOWN STYLE === */
 form select {
   padding: 10px;
   border-radius: 10px;
@@ -259,13 +265,7 @@ form select {
   font-size: 1rem;
 }
 
-.repeat-info {
-  font-size: 0.85rem;
-  margin-top: 6px;
-  font-style: italic;
-  color: #ccc;
-}
-
+/* === RESPONSIVE STYLES FOR SMALL SCREENS === */
 @media (max-width: 600px) {
   .event-card.large, .event-card.medium, .event-card.small {
     font-size: 0.9rem;

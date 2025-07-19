@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <!-- Settings menu for layout/size/notifications -->
   <div class="settings-container">
     <div class="settings-icon">⚙️</div>
     <div class="settings-menu hidden">
@@ -29,13 +30,16 @@
     </div>
   </div>
 
+  <!-- Main app container -->
   <div class="container">
+    <!-- Initial message when no events are created -->
     <div id="empty-state" class="empty-state">
       <div class="icon"><img src="time img.png" height="100px" width="100px"></div><br><br>
       <p>Create your first Event</p>
       <div class="arrow">⬇</div>
     </div>
 
+    <!-- Event creation form -->
     <form id="event-form">
       <input type="text" id="title" placeholder="Event Title" required />
       <input type="date" id="date" required /> 
@@ -50,10 +54,14 @@
       <button class="add" type="submit">Add Event</button>
     </form>
 
+    <!-- Events display area -->
     <div id="events-list" class="events-list"></div>
   </div>
 
+  <!-- Alarm sound played when event time is reached -->
   <audio id="alarm-sound" src="alarm.mp3" preload="auto"></audio>
+
+  <!-- Main JS -->
   <script src="script.js"></script>
 </body>
 </html>
